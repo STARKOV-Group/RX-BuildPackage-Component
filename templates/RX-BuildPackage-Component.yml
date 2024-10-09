@@ -1,0 +1,15 @@
+spec:
+  inputs:
+    stageBuildPackage:
+      default: RX-BuildPackage
+---
+RX-BuildPackage-Component:
+  stage: $[[ inputs.stageBuildPackage ]]
+  script:
+    # Check or create Project Folder
+    - if ( Test-Path $PackageProjectPath ) { echo "PackageProjectPath folder founded" } else { mkdir $PackageProjectPath; echo "PackageProjectPath folder created" }
+    # Generate Package.xml
+    - '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath'
+    - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
+    # Build
+    - '& $DDSConfigPath\DevelopmentStudio.exe -c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false'
