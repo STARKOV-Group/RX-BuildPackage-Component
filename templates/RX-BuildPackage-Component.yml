@@ -1,10 +1,10 @@
 spec:
   inputs:
-    stageBuildPackage:
+    stage:
       default: RX-BuildPackage
 ---
 RX-BuildPackage-Component:
-  stage: $[[ inputs.stageBuildPackage ]]
+  stage: $[[ inputs.stage ]]
   script:
     # Check or create Project Folder
     - if ( Test-Path $PackageProjectPath ) { echo "PackageProjectPath folder founded" } else { mkdir $PackageProjectPath; echo "PackageProjectPath folder created" }
