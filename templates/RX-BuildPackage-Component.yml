@@ -2,9 +2,13 @@ spec:
   inputs:
     stage:
       default: RX-BuildPackage
+    rules:
+      default: '"true" == "true"'
 ---
 RX-BuildPackage-Component:
   stage: $[[ inputs.stage ]]
+  rules: 
+    - if: $[[ inputs.rules ]]
   script:
     # Check or create Project Folder
     - if ( Test-Path $PackageProjectPath ) { echo "PackageProjectPath folder founded" } else { mkdir $PackageProjectPath; echo "PackageProjectPath folder created" }
