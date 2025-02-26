@@ -12,6 +12,8 @@ RX-BuildPackage-Component:
   script:
     # Check or create Project Folder
     - if ( Test-Path $PackageProjectPath ) { echo "PackageProjectPath folder founded" } else { mkdir $PackageProjectPath; echo "PackageProjectPath folder created" }
+    # Clear old package and xml
+    - Get-ChildItem $PackageProjectPath | Remove-Item -Recurse -Force
     # Generate Package.xml
     - '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath'
     - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
