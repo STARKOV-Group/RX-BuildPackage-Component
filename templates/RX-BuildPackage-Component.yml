@@ -15,10 +15,11 @@ RX-BuildPackage-Component:
     # Clear old package and xml
     - Get-ChildItem $PackageProjectPath | Remove-Item -Recurse -Force
     # Generate Package.xml
-    - if ($BuildMod == "Release") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath null true false' }
-    - if ($BuildMod == "DebugRelease") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath' }
-    - if ($BuildMod == "Source") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath null true true' }
-    - if ($BuildMod == "SourceBase") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath null true true true' }
+    - if ($BuildMode -eq "Release") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true false" -Wait } else {echo "not Release" }
+    - if ($BuildMode -eq "DebugRelease") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath" -Wait } else {echo "not DebugRelease" }
+    - if ($BuildMode -eq "Source") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true" -Wait } else {echo "not Source" }
+    - if ($BuildMode -eq "SourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true" -Wait } else {echo "not SourceBase" }
     - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
     # Build
-    - '& $DDSConfigPath\DevelopmentStudio.exe -c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false'
+    - Start-Process -FilePath "$DDSConfigPath\DevelopmentStudio.exe" -ArgumentList "-c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false" -Wait
+    - if ( Test-Path $PackageProjectPath\package.dat ) { } else { echo "Not created package.dat"; exit 1}
