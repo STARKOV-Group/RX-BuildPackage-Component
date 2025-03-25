@@ -17,8 +17,8 @@ RX-BuildPackage-Component:
     # Generate Package.xml
     - if ($BuildMode -eq "Release") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true false" -Wait } else {echo "not Release" }
     - if ($BuildMode -eq "DebugRelease") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath" -Wait } else {echo "not DebugRelease" }
-    - if ($BuildMode -eq "Source") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true" -Wait } else {echo "not Source" }
-    - if ($BuildMode -eq "SourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true" -Wait } else {echo "not SourceBase" }
+    - if ($BuildMode -eq "Source") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true" -Wait } else {echo "not Source" }
+    - if ($BuildMode -eq "SourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true true" -Wait } else {echo "not SourceBase" }
     - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
     # Build
     - Start-Process -FilePath "$DDSConfigPath\DevelopmentStudio.exe" -ArgumentList "-c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false" -Wait
