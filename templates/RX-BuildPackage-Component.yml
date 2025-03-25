@@ -15,7 +15,10 @@ RX-BuildPackage-Component:
     # Clear old package and xml
     - Get-ChildItem $PackageProjectPath | Remove-Item -Recurse -Force
     # Generate Package.xml
-    - '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath'
+    - if ($BuildMod == "Release") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath null true false' }
+    - if ($BuildMod == "DebugRelease") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath' }
+    - if ($BuildMod == "Source") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath null true true' }
+    - if ($BuildMod == "SourceBase") { '& $AutoGenPackageUtilPath\PackageXmlGenerator.exe $GitProjectFolder $PackageProjectPath null true true true' }
     - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
     # Build
     - '& $DDSConfigPath\DevelopmentStudio.exe -c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false'
