@@ -19,6 +19,7 @@ RX-BuildPackage-Component:
     - if ($BuildMode -eq "DebugRelease") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath" -Wait } else {echo "not DebugRelease" }
     - if ($BuildMode -eq "Source") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true" -Wait } else {echo "not Source" }
     - if ($BuildMode -eq "SourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true true" -Wait } else {echo "not SourceBase" }
+    - if ($BuildMode -eq "OnlySourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null false false true true" -Wait } else {echo "not OnlySourceBase" }
     - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
     # Build
     - $process = Start-Process -FilePath "$DDSConfigPath\DevelopmentStudio.exe" -ArgumentList "-c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false" -PassThru
