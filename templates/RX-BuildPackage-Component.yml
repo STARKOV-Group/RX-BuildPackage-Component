@@ -6,22 +6,34 @@ spec:
       default: '"true" == "true"'
 ---
 RX-BuildPackage-Component:
+  tags:
+    - $RunnerTags
   stage: $[[ inputs.stage ]]
   rules: 
     - if: $[[ inputs.rules ]]
+  before_script:
+    # Очистка папки пакета
+    - Remove-Item -Path "$PackageProjectPath\*" -Recurse -Force
   script:
-    # Check or create Project Folder
-    - if ( Test-Path $PackageProjectPath ) { echo "PackageProjectPath folder founded" } else { mkdir $PackageProjectPath; echo "PackageProjectPath folder created" }
-    # Clear old package and xml
-    - Get-ChildItem $PackageProjectPath | Remove-Item -Recurse -Force
+    # Переопределение путей с учетом веток. При изменении логики также поменять в BuildPackage, PreparedServer, DeployDTPackage, UploadPackage и VersionUp компонентах
+    - $FormattedBranchName = ($CI_COMMIT_BRANCH -replace '\W', '_')
+    - $GitProjectFolder = "$GitProjectFolder\$FormattedBranchName"
+    #- $PackageProjectPath = "$PackageProjectPath\$FormattedBranchName"
     # Generate Package.xml
-    - if ($BuildMode -eq "Release") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true false" -Wait } else {echo "not Release" }
-    - if ($BuildMode -eq "DebugRelease") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath" -Wait } else {echo "not DebugRelease" }
-    - if ($BuildMode -eq "Source") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true" -Wait } else {echo "not Source" }
-    - if ($BuildMode -eq "SourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null true true true true" -Wait } else {echo "not SourceBase" }
-    - if ($BuildMode -eq "OnlySourceBase") { Start-Process -FilePath "$AutoGenPackageUtilPath\PackageXmlGenerator.exe" -ArgumentList "$GitProjectFolder $PackageProjectPath null false false true true" -Wait } else {echo "not OnlySourceBase" }
+    - if ($BuildMode -eq "Release") { & "${AutoGenPackageUtilPath}\PackageXmlGenerator.exe" -p $GitProjectFolder -o $PackageProjectPath -l $SolutionList -a } else {echo "not Release" }
+    - if ($BuildMode -eq "DebugRelease") { & "${AutoGenPackageUtilPath}\PackageXmlGenerator.exe" -p $GitProjectFolder -o $PackageProjectPath -l $SolutionList -a -d } else {echo "not DebugRelease" }
+    - if ($BuildMode -eq "Source") { & "${AutoGenPackageUtilPath}\PackageXmlGenerator.exe" -p $GitProjectFolder -o $PackageProjectPath -l $SolutionList -a -d -s } else {echo "not Source" }
+    - if ($BuildMode -eq "SourceBase") { & "${AutoGenPackageUtilPath}\PackageXmlGenerator.exe" -p $GitProjectFolder -o $PackageProjectPath -l $SolutionList -a -d -s -m } else {echo "not SourceBase" }
+    - if ($BuildMode -eq "OnlySourceBase") { & "${AutoGenPackageUtilPath}\PackageXmlGenerator.exe" -p $GitProjectFolder -o $PackageProjectPath -l $SolutionList -s -m } else {echo "not OnlySourceBase" }
     - if ( Test-Path $PackageProjectPath\packageGen.xml ) { } else { echo "Not created packageGen.xml"; exit 1}
     # Build
-    - $process = Start-Process -FilePath "$DDSConfigPath\DevelopmentStudio.exe" -ArgumentList "-c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\package.dat --increment-version false" -PassThru
+    - $process = Start-Process -FilePath "$DDSConfigPath\DevelopmentStudio.exe" -ArgumentList "-c $PackageProjectPath\packageGen.xml -d $PackageProjectPath\$($FormattedBranchName)_package.dat --increment-version false" -PassThru
     - $process.WaitForExit()
-    - if ( Test-Path $PackageProjectPath\package.dat ) { } else { echo "Not created package.dat"; exit 1}
+    - if ( Test-Path "$PackageProjectPath\$($FormattedBranchName)_package.dat" ) { } else { echo "Not created $($FormattedBranchName)_package.dat"; exit 1}
+  artifacts:
+    expire_in: 1 week
+    when: always
+    paths:
+      - ./*
+    exclude:
+      - ./*packageGen*

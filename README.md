@@ -1,20 +1,26 @@
-# RX BuildPackage Component
+# Сборка пакета (RX BuildPackage Component)
 
-Используется для сборки пакетов. 
+#### Описание:
 
-Особенности: 
+Сборка пакета с помощью DDS и собранной [утилитой](https://git.starkovgrp.ru/golovnev/PackageXmlGenerator) xml.
 
-Package.xml атогенерируется для избежания зависимостей проекта от загруженного xml в гит. Это позволяет избежать ситуаций с неверной генерацией при изменении состава решений и необходимости поддерживать в актуальном состоянии package.xml
+##### Логика:
 
-Утилита с автогенерацией лежит на нашем гитлабе: http://git.starkovgrp.local/golovnev/PackageXmlGenerator
+В зависимости от значения переменных [BuildMode](https://git.starkovgrp.ru/ci-cd-components/Completed-RXDTDeploy-Component#buildmode) и SolutionList создает xml файл для сборки пакета по адресу: \$[PackageProjectPath](https://git.starkovgrp.ru/ci-cd-components/Completed-RXDTDeploy-Component#packageprojectpath)\\packageGen.xml  
+Если файл не получилось создать, то заканчивает выполнение с ошибкой
 
-Стандартный вариант выгрузки - DebugRelease
+С помощью созданного файла и DDS собирает пакет разработки по адресу: \$[PackageProjectPath](https://git.starkovgrp.ru/ci-cd-components/Completed-RXDTDeploy-Component#packageprojectpath)\\package.dat  
+Если пакет не получилось собрать, то заканчивает выполнение с ошибкой
 
-Варианты выгрузки
-1. Release 			-	Исполняемые
-2. DebugRelease		-	Release + дебаг
-3. Source			-	DebugRelease + передача исходников
-4. SourceBase		-	Source + передача как базовый слой
-5. OnlySourceBase   -   Только исходники + передать как базовый
+В артефакты этапа кладутся логи и, если получилось его собрать, пакет. Сами артефакты хранятся в течении 1 недели
 
-Вариант выгрузки задаётся через переменную variables: BuildMode
+#### Переменные:
+
+##### Пользовательские настройки
+
+##### SolutionList
+
+**Описание:** Список решений для сборки в пакет  
+**Примечание:** В дальнейшем будет переделано на исключение указанных решений из публикации, а пока нужно указывать только если нужно собирать пакет не со всеми решениями  
+**Обязательность:** Нет  
+**Пример:** DirRX.DirectumTargets|DirRX.ProjectPlanning|DirRX.TeamsCommon|Sungero.DirectumRX
